@@ -1,0 +1,163 @@
+{
+  "orders": [
+    {
+      "userId": "123",
+      "items": [
+        {
+          "id": "2",
+          "name": "Product 2",
+          "price": 21,
+          "quantity": 1
+        }
+      ],
+      "subtotal": 21,
+      "discount": 0,
+      "total": 21,
+      "orderNumber": "1739905643444",
+      "nextDiscountIn": 2,
+      "availableDiscountCode": null,
+      "discountPercent": 10,
+      "newDiscountGenerated": false,
+      "id": "1739905643444",
+      "createdAt": "2025-02-18T19:07:23.444Z",
+      "usedDiscountCode": null
+    },
+    {
+      "userId": "123",
+      "items": [
+        {
+          "id": "1",
+          "name": "Product 1",
+          "price": 12,
+          "quantity": 1
+        }
+      ],
+      "subtotal": 12,
+      "discount": 0,
+      "total": 12,
+      "orderNumber": "1739905647971",
+      "nextDiscountIn": 1,
+      "availableDiscountCode": null,
+      "discountPercent": 10,
+      "newDiscountGenerated": false,
+      "id": "1739905647971",
+      "createdAt": "2025-02-18T19:07:27.971Z",
+      "usedDiscountCode": null
+    },
+    {
+      "userId": "123",
+      "items": [
+        {
+          "id": "3",
+          "name": "Product 3",
+          "price": 15,
+          "quantity": 1
+        }
+      ],
+      "subtotal": 15,
+      "discount": 0,
+      "total": 15,
+      "orderNumber": "1739905657676",
+      "nextDiscountIn": 3,
+      "availableDiscountCode": "USER123M7AUWLL85HHH",
+      "discountPercent": 10,
+      "newDiscountGenerated": true,
+      "id": "1739905657676",
+      "createdAt": "2025-02-18T19:07:37.676Z",
+      "usedDiscountCode": null
+    },
+    {
+      "userId": "123",
+      "items": [
+        {
+          "id": "2",
+          "name": "Product 2",
+          "price": 21,
+          "quantity": 1
+        }
+      ],
+      "subtotal": 21,
+      "discount": 2.1,
+      "total": 18.9,
+      "orderNumber": "1739905668512",
+      "nextDiscountIn": 2,
+      "availableDiscountCode": null,
+      "discountPercent": 10,
+      "newDiscountGenerated": false,
+      "id": "1739905668512",
+      "createdAt": "2025-02-18T19:07:48.512Z"
+    },
+    {
+      "userId": "123",
+      "items": [
+        {
+          "id": "2",
+          "name": "Product 2",
+          "price": 21,
+          "quantity": 1
+        },
+        {
+          "id": "1",
+          "name": "Product 1",
+          "price": 12,
+          "quantity": 1
+        }
+      ],
+      "subtotal": 33,
+      "discount": 0,
+      "total": 33,
+      "orderNumber": "1739906319803",
+      "nextDiscountIn": 2,
+      "availableDiscountCode": null,
+      "discountPercent": 10,
+      "newDiscountGenerated": false,
+      "id": "1739906319803",
+      "createdAt": "2025-02-18T19:18:39.803Z",
+      "usedDiscountCode": null
+    },
+    {
+      "userId": "123",
+      "items": [
+        {
+          "id": "1",
+          "name": "Product 1",
+          "price": 12,
+          "quantity": 1
+        }
+      ],
+      "subtotal": 12,
+      "discount": 0,
+      "total": 12,
+      "orderNumber": "1739907027555",
+      "nextDiscountIn": 3,
+      "availableDiscountCode": "USER123M7AVPYLFGPRY",
+      "discountPercent": 10,
+      "newDiscountGenerated": true,
+      "id": "1739907027555",
+      "createdAt": "2025-02-18T19:30:27.555Z",
+      "usedDiscountCode": null
+    },
+    {
+      "userId": "123",
+      "items": [
+        {
+          "id": "2",
+          "name": "Product 2",
+          "price": 21,
+          "quantity": 1
+        }
+      ],
+      "subtotal": 21,
+      "discount": 0,
+      "total": 21,
+      "orderNumber": "1739907046451",
+      "nextDiscountIn": 2,
+      "availableDiscountCode": "USER123M7AVPYLFGPRY",
+      "discountPercent": 10,
+      "newDiscountGenerated": false,
+      "id": "1739907046452",
+      "createdAt": "2025-02-18T19:30:46.452Z",
+      "usedDiscountCode": null
+    }
+  ]
+}
