@@ -46,7 +46,7 @@ export default function AdminPage() {
   if (!stats) return <div>Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 py-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-gray-800">Admin Dashboard</h1>
 
