@@ -12,18 +12,25 @@ export interface CartStats {
   totalItems: number;
   totalAmount: number;
   totalDiscount: number;
-  orderCount: number;
-  recentOrders: Array<{
-    id: string;
-    orderNumber: string;
-    userId: string;
-    items: CartItem[];
-    total: number;
-    discount: number;
-    createdAt: string;
-  }>;
   currentConfig: {
     nthOrder: number;
     percentage: number;
   };
+  orderCount: number;
+  recentOrders: Array<{
+    id: string;
+    user_id: string;
+    items: Array<{
+      id: string;
+      name: string;
+      price: number;
+      quantity: number;
+      created_at: string;
+    }>;
+    subtotal: number;
+    discount: number;
+    total: number;
+    used_discount_code: string | null;
+    created_at: string;
+  }>;
 }

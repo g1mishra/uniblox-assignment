@@ -1,16 +1,55 @@
-# Shopping Cart with Discount System
+# Uniblox Assignment - Shopping Cart Service
 
-A Next.js application implementing a shopping cart with an automatic discount code generation system.
+This project implements a shopping cart service with discount management functionality using Next.js and Supabase.
+
+## Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Set up environment variables:
+   Create a `.env.local` file with your Supabase credentials:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+3. Set up Supabase:
+
+- Create a new Supabase project
+- Create the following tables:
+  - `products`: id (uuid), name (text), price (numeric), description (text)
+  - `orders`: id (uuid), user_id (text), items (jsonb), subtotal (numeric), discount (numeric), total (numeric), used_discount_code (text), created_at (timestamp)
+
+4. Load initial products:
+
+```bash
+npm run load-products
+```
+
+## Running the Application
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`.
 
 ## Requirements Fulfilled
 
 1. User-specific discount codes:
+
    - Generated automatically after every nth order (configurable)
    - Unique per user
    - Single-use only
    - Percentage-based discount (configurable)
 
 2. Shopping Cart Features:
+
    - Add products to cart
    - View cart contents
    - Apply discount codes
@@ -30,7 +69,7 @@ A Next.js application implementing a shopping cart with an automatic discount co
 
 - **Frontend**: Next.js with TypeScript
 - **State Management**: React useState and useEffect
-- **Data Persistence**: JSON files
+- **Data Persistence**: Supabase
 - **Styling**: Tailwind CSS
 - **Session Management**: sessionStorage for user identification
 
@@ -44,31 +83,13 @@ A Next.js application implementing a shopping cart with an automatic discount co
 │   ├── lib/             # Business logic
 │   ├── admin/           # Admin dashboard
 │   └── page.tsx         # Main shopping page
-├── data/
-│   ├── products.json    # Product catalog
-│   └── orders.json      # Order history
 └── types/              # TypeScript definitions
 ```
-
-## How to Run
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-3. Access the application:
-   - Shopping Cart: http://localhost:3000
-   - Admin Dashboard: http://localhost:3000/admin
 
 ## Features
 
 ### Shopping Cart
+
 - User identification on first visit
 - Product listing
 - Add items to cart
@@ -77,12 +98,14 @@ A Next.js application implementing a shopping cart with an automatic discount co
 - Order confirmation with savings details
 
 ### Admin Dashboard
+
 - Real-time statistics
 - Recent order history
 - Discount configuration
 - Revenue tracking
 
 ### Discount System
+
 - Automatic code generation
 - User-specific codes
 - Single-use validation
@@ -92,11 +115,13 @@ A Next.js application implementing a shopping cart with an automatic discount co
 ## Technical Notes
 
 1. User Identification:
+
    - Users must enter ID on first visit
    - ID stored in session storage
    - All discounts tracked per user
 
 2. Discount Logic:
+
    - Codes generated after every nth order
    - Codes are unique per user
    - Validation prevents code reuse

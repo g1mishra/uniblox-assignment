@@ -14,25 +14,41 @@ export default function AdminPage() {
     nthOrder: 3,
     percentage: 10,
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
-    const response = await fetch("/api/admin/stats");
-    const data = await response.json();
-    setStats(data);
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/admin/stats");
+      const data = await response.json();
+      setStats(data);
+      setConfig({
+        nthOrder: data.currentConfig.nthOrder,
+        percentage: data.currentConfig.percentage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updateConfig = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch("/api/admin/stats", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(config),
-    });
-    fetchStats();
+    try {
+      setIsUpdating(true);
+      await fetch("/api/admin/stats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(config),
+      });
+      await fetchStats();
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +59,13 @@ export default function AdminPage() {
     }));
   };
 
-  if (!stats) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-6">
@@ -105,15 +127,15 @@ export default function AdminPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {stats.recentOrders.map((order) => (
                     <tr key={order.id} className="border-b">
-                      <td className="px-6 py-4">{order.orderNumber}</td>
-                      <td className="px-6 py-4">{order.userId}</td>
+                      <td className="px-6 py-4">{order.id}</td>
+                      <td className="px-6 py-4">{order.user_id}</td>
                       <td className="px-6 py-4 text-right">
                         {order.items.reduce((sum, item) => sum + item.quantity, 0)}
                       </td>
                       <td className="px-6 py-4 text-right">${order.total.toFixed(2)}</td>
                       <td className="px-6 py-4 text-right">${order.discount.toFixed(2)}</td>
                       <td className="px-6 py-4">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {new Date(order.created_at).toLocaleDateString()}
                       </td>
                     </tr>
                   ))}
@@ -158,9 +180,17 @@ export default function AdminPage() {
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transform transition-all duration-200 hover:scale-[1.02]"
+              disabled={isUpdating}
+              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Update Configuration
+              {isUpdating ? (
+                <span className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Updating...
+                </span>
+              ) : (
+                "Update Configuration"
+              )}
             </button>
           </form>
         </div>

@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       }
     }
 
-    const result = CartService.getInstance().checkout(userId, items, discountCode);
+    const result = await CartService.getInstance().checkout(userId, items, discountCode);
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("Checkout error:", error);

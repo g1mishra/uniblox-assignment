@@ -1,5 +1,4 @@
-import * as fs from "fs";
-import * as path from "path";
+import { supabase } from "../../lib/supabase";
 
 interface Product {
   id: string;
@@ -16,6 +15,17 @@ interface DiscountConfig {
   percentage: number;
 }
 
+interface Order {
+  id: string;
+  user_id: string;
+  items: CartItem[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  used_discount_code: string | null;
+  created_at: string;
+}
+
 class CartService {
   private static instance: CartService;
   private orderCount: Record<string, number> = {};
@@ -25,36 +35,23 @@ class CartService {
     nthOrder: 3,
     percentage: 10,
   };
-
-  private totalRevenue = 0;
-  private totalDiscount = 0;
-  private totalItems = 0;
-
-  private ordersPath = path.join(process.cwd(), "data", "orders.json");
-  private productsPath = path.join(process.cwd(), "data", "products.json");
+  private totalRevenue: number = 0;
+  private totalDiscount: number = 0;
+  private totalItems: number = 0;
 
   private constructor() {
     this.initializeFromOrders();
   }
 
-  private initializeFromOrders() {
-    const orders = this.loadOrders();
+  private async initializeFromOrders() {
+    const orders = await this.loadOrders();
     this.orderCount = {};
-    this.totalRevenue = 0;
-    this.totalDiscount = 0;
-    this.totalItems = 0;
 
     orders.forEach((order) => {
-      if (order.userId) {
-        this.orderCount[order.userId] = (this.orderCount[order.userId] || 0) + 1;
-        this.initializeUserData(order.userId);
+      if (order.user_id) {
+        this.orderCount[order.user_id] = (this.orderCount[order.user_id] || 0) + 1;
+        this.initializeUserData(order.user_id);
       }
-      this.totalRevenue += Number(order.total) || 0;
-      this.totalDiscount += Number(order.discount) || 0;
-      this.totalItems += order.items.reduce(
-        (sum: number, item: { quantity: any }) => sum + Number(item.quantity),
-        0
-      );
     });
   }
 
@@ -113,39 +110,60 @@ class CartService {
     return { valid: true };
   }
 
-  private loadOrders(): any[] {
-    try {
-      const data = fs.readFileSync(this.ordersPath, "utf-8");
-      return JSON.parse(data).orders;
-    } catch (error) {
+  private async loadOrders() {
+    const { data: orders, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
       console.error("Error loading orders:", error);
       return [];
     }
+    return orders || [];
   }
 
-  private saveOrder(order: any) {
-    const orders = this.loadOrders();
-    const orderToSave = {
-      ...order,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      usedDiscountCode: order.discount > 0 ? order.discountCode : null,
-    };
-    orders.push(orderToSave);
-    fs.writeFileSync(this.ordersPath, JSON.stringify({ orders }, null, 2));
+  private async saveOrder(order: {
+    userId: string;
+    items: CartItem[];
+    subtotal: number;
+    discount: number;
+    total: number;
+    discountCode?: string;
+  }): Promise<Order> {
+    const { data, error } = await supabase
+      .from("orders")
+      .insert([
+        {
+          user_id: order.userId,
+          items: order.items,
+          subtotal: order.subtotal,
+          discount: order.discount,
+          total: order.total,
+          used_discount_code: order.discount > 0 ? order.discountCode : null,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to save order: ${error.message}`);
+    }
+    return data as Order;
   }
 
-  loadProducts(): Product[] {
-    try {
-      const data = fs.readFileSync(this.productsPath, "utf-8");
-      return JSON.parse(data).products;
-    } catch (error) {
+  async loadProducts(): Promise<Product[]> {
+    const { data: products, error } = await supabase.from("products").select("*");
+
+    if (error) {
       console.error("Error loading products:", error);
       return [];
     }
+    return products;
   }
 
-  checkout(userId: string, items: CartItem[], discountCode?: string) {
+  async checkout(userId: string, items: CartItem[], discountCode?: string) {
     this.initializeUserData(userId);
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
     let discount = 0;
@@ -177,36 +195,47 @@ class CartService {
       total: subtotal - discount,
     };
 
-    const orderSummary = {
-      ...order,
-      orderNumber: Date.now().toString(),
+    const savedOrder = await this.saveOrder(order);
+
+    return {
+      ...savedOrder,
       nextDiscountIn: this.config.nthOrder - (this.orderCount[userId] % this.config.nthOrder),
       availableDiscountCode: this.getAvailableDiscountCode(userId),
       discountPercent: this.config.percentage,
       newDiscountGenerated: this.orderCount[userId] % this.config.nthOrder === 0,
     };
-
-    this.saveOrder(orderSummary);
-    return orderSummary;
   }
 
-  getStats() {
-    const orders = this.loadOrders();
+  async getStats() {
+    const { data: orders, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching stats:", error);
+      return {
+        totalItems: 0,
+        totalAmount: 0,
+        totalDiscount: 0,
+        currentConfig: this.config,
+        orderCount: 0,
+        recentOrders: [],
+      };
+    }
+
+    const typedOrders = orders as Order[];
+
     return {
-      totalItems: orders.reduce(
-        (sum, order) =>
-          sum +
-          order.items.reduce(
-            (itemSum: any, item: { quantity: any }) => itemSum + (item.quantity || 0),
-            0
-          ),
+      totalItems: typedOrders.reduce(
+        (sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0),
         0
       ),
-      totalAmount: orders.reduce((sum, order) => sum + (order.total || 0), 0),
-      totalDiscount: orders.reduce((sum, order) => sum + (order.discount || 0), 0),
+      totalAmount: typedOrders.reduce((sum, order) => sum + order.total, 0),
+      totalDiscount: typedOrders.reduce((sum, order) => sum + order.discount, 0),
       currentConfig: this.config,
-      orderCount: orders.length,
-      recentOrders: orders.slice(-5).reverse(),
+      orderCount: typedOrders.length,
+      recentOrders: typedOrders.slice(0, 5),
     };
   }
 }
