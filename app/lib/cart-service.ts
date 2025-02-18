@@ -30,8 +30,8 @@ class CartService {
   private totalDiscount = 0;
   private totalItems = 0;
 
-  private ordersPath = path.join(process.cwd(), "data", "orders.json");
-  private productsPath = path.join(process.cwd(), "data", "products.json");
+  private ordersPath = path.join("data", "orders.json");
+  private productsPath = path.join("data", "products.json");
 
   private constructor() {
     this.initializeFromOrders();
